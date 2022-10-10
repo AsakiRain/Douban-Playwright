@@ -5,7 +5,7 @@ import { ExcelService } from "../../excel";
 test.describe("bookList", async () => {
   let books: Array<IBook> = [];
   test("get book information", async ({ page }) => {
-    const tagName = "通信";
+    const tagName = "算法";
     await page.goto(`https://book.douban.com/tag/${tagName}?start=0&type=T`);
     page.once("load", () => console.log("Page loaded!"));
 
@@ -19,7 +19,10 @@ test.describe("bookList", async () => {
         .waitFor();
       books = books.concat(await getBooks(page));
       nextButton = page.locator("text=后页>");
-      if ((await nextButton.count()) <= 0) {
+      if (
+        (await nextButton.count()) <= 0 ||
+        (await nextButton.getAttribute("href")) === null
+      ) {
         break;
       }
     }
@@ -49,10 +52,31 @@ export async function getBooks(page: Page): Promise<IBook[]> {
       await bookLists.nth(i).locator("div.info > div.pub").innerText()
     ).split("/");
 
-    const bookAuthor = bookPub[0];
-    const bookPubPlace = bookPub[1];
-    const bookPubDate = bookPub[2];
+    let bookAuthor: string,
+      bookTranslator: string,
+      bookPublisher: string,
+      bookPubDate: string,
+      bookPrice: string;
 
+    switch (bookPub.length) {
+      case 4:
+        bookAuthor = bookPub[0];
+        bookTranslator = "";
+        bookPublisher = bookPub[1];
+        bookPubDate = bookPub[2];
+        bookPrice = bookPub[3];
+        break;
+      case 5:
+        bookAuthor = bookPub[0];
+        bookTranslator = bookPub[1];
+        bookPublisher = bookPub[2];
+        bookPubDate = bookPub[3];
+        bookPrice = bookPub[4];
+        break;
+      default:
+        continue;
+      //屏蔽信息不全的书籍
+    }
     // check if the rating_nums is exist
     let bookRating = "null";
     let bookRatingPeople = "null";
@@ -72,6 +96,9 @@ export async function getBooks(page: Page): Promise<IBook[]> {
           .locator("div.info > div.star > span.pl")
           .innerText()
       ).replace(/[^\d]/g, "");
+    } else {
+      continue;
+      //屏蔽信息不全的书籍
     }
 
     // check if the p element of dic.info is exist
@@ -86,7 +113,9 @@ export async function getBooks(page: Page): Promise<IBook[]> {
       bookUrl,
       bookImg,
       bookAuthor,
-      bookPubPlace,
+      bookTranslator,
+      bookPublisher,
+      bookPrice,
       bookPubDate,
       bookRating,
       bookRatingPeople,

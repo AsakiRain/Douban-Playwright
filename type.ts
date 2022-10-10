@@ -4,8 +4,10 @@ export interface IBook {
   bookUrl: string;
   bookImg: string | null;
   bookAuthor: string;
-  bookPubPlace: string;
+  bookTranslator: string;
+  bookPublisher: string;
   bookPubDate: string;
+  bookPrice: string;
   bookRating: string;
   bookRatingPeople: string;
   bookIntro: string;

@@ -5,7 +5,7 @@ test.describe("bookDetail", async () => {
   test("get book details", async ({ page }) => {
     let bookDetailsList: Array<Record<string, string>> = [];
     const bookList = new ExcelService().readJsonFromExcelFile(
-      "通信图书数据-1652535990284.xlsx"
+      "编程图书数据-1665147758350.xlsx"
     );
     for (let i = 0; i < bookList.length; i++) {
       const bookDetailUrl = bookList[i].bookUrl;
@@ -13,7 +13,7 @@ test.describe("bookDetail", async () => {
       let bookDetails = await getBookDetails(page);
       bookDetailsList.push(bookDetails);
     }
-    new ExcelService().exportAsExcelFile(bookDetailsList, `通信图书数据`);
+    new ExcelService().exportAsExcelFile(bookDetailsList, `编程图书数据`);
   });
 });
 
